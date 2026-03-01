@@ -1,0 +1,5 @@
+{
+  "name": "browser-recorder",
+  "description": "Record browser interactions as MP4 video using Chrome DevTools Protocol and ffmpeg.",
+  "version": "1.0.0"
+}
