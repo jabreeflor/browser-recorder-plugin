@@ -1,8 +1,8 @@
 # Browser Recorder — Claude Code Plugin
 
-Record browser interactions as MP4 video directly from Claude Code.
+Record browser interactions as MP4 video directly from Claude Code by orchestrating Chrome DevTools MCP tools.
 
-This plugin connects to Chrome's DevTools Protocol, captures screencast frames in real-time, and compiles them into an H.264 MP4 using ffmpeg.
+Unlike standalone recording tools, this plugin combines **screencast capture** with **browser automation** — you can describe interactions in plain language and get a video of Claude performing them.
 
 ## Installation
 
@@ -10,71 +10,82 @@ This plugin connects to Chrome's DevTools Protocol, captures screencast frames i
 claude plugin link /path/to/browser-recorder-plugin
 ```
 
-Or install from GitHub:
-
-```bash
-claude plugin install browser-recorder
-```
-
 ## Prerequisites
 
-- **Node.js** v18+
 - **ffmpeg** — `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
 - **Chrome/Chromium** launched with remote debugging:
   ```bash
-  google-chrome --remote-debugging-port=9222
-  # or on macOS:
   /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+  ```
+- **Chrome DevTools MCP** configured with the `--screencast` flag:
+  ```json
+  {
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest", "--screencast"],
+      "env": {}
+    }
+  }
   ```
 
 ## Usage
 
-### Start Recording
+### Record a manual session
 
 ```
-/record-browser output.mp4
-```
-
-Options:
-- `--port 9222` — Chrome DevTools port (default: 9222)
-- `--fps 15` — Output video FPS (default: 10)
-- `--quality 90` — JPEG capture quality 1-100 (default: 80)
-
-### Stop Recording
-
-```
+/record-browser
+# interact with Chrome manually...
 /stop-recording
 ```
 
-The recorder will compile all captured frames into the MP4 and clean up temporary files.
+### Record a specific page
+
+```
+/record-browser https://example.com --output demo.mp4
+```
+
+### Record with automated interactions
+
+```
+/record-browser https://example.com --actions "click login, fill username 'admin', submit the form"
+```
+
+Claude will use the MCP's `click`, `fill`, `navigate`, and other tools to perform the actions while recording.
 
 ## How It Works
 
-1. Connects to Chrome via WebSocket using the Chrome DevTools Protocol
-2. Calls `Page.startScreencast` to stream JPEG frames from the browser
-3. Saves frames sequentially to a temporary directory
-4. On stop, runs ffmpeg to compile frames into H.264 MP4 (yuv420p, CRF 23)
-5. Cleans up temporary frame files
+1. Verifies Chrome is reachable via `list_pages`
+2. Navigates to the target URL (if provided)
+3. Starts recording with `screencast_start` (MCP → Puppeteer → ffmpeg)
+4. Performs interactions using MCP automation tools (`click`, `fill`, `type_text`, etc.)
+5. Stops recording with `screencast_stop` and saves the MP4
+
+## MCP Tools Used
+
+| Tool | Purpose |
+|------|---------|
+| `screencast_start` | Begin MP4 recording |
+| `screencast_stop` | Stop recording and save |
+| `list_pages` / `select_page` | Page management |
+| `navigate_page` | URL navigation |
+| `take_snapshot` | Get element UIDs for interaction |
+| `click` / `fill` / `type_text` | Input automation |
+| `press_key` / `hover` / `drag` | Advanced interactions |
+| `resize_page` | Set viewport for recording |
 
 ## Project Structure
 
 ```
 browser-recorder-plugin/
 ├── .claude/
-│   ├── settings.json          # Plugin metadata
+│   ├── settings.json
 │   └── skills/
-│       ├── record-browser/    # /record-browser skill
-│       │   └── SKILL.md
-│       ├── stop-recording/    # /stop-recording skill
-│       │   └── SKILL.md
-│       └── help/              # Help documentation
-│           └── SKILL.md
+│       ├── record-browser/SKILL.md    # /record-browser
+│       ├── stop-recording/SKILL.md    # /stop-recording
+│       └── help/SKILL.md              # Help docs
 ├── .claude-plugin/
-│   └── plugin.json            # Plugin identity
-├── scripts/
-│   ├── recorder.js            # Core recording engine
-│   ├── start-recording.sh     # Start wrapper script
-│   └── stop-recording.sh      # Stop wrapper script
+│   └── plugin.json
 ├── package.json
 └── README.md
 ```

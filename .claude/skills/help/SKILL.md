@@ -7,55 +7,54 @@ hide-from-slash-command-tool: "true"
 
 # Browser Recorder — Help
 
-Explain the browser recorder plugin to the user. Present this information clearly:
+Explain the browser recorder plugin to the user:
 
 ## Overview
 
-The **Browser Recorder** plugin captures browser interactions as MP4 video by connecting to Chrome's DevTools Protocol. It uses the screencast API to capture frames in real-time, then compiles them with ffmpeg.
+The **Browser Recorder** plugin orchestrates Chrome DevTools MCP tools to record browser interactions as MP4 video. It wraps the MCP's `screencast_start`/`screencast_stop` tools with browser automation (`click`, `fill`, `navigate`, etc.) to capture full interaction workflows in a single command.
 
 ## Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `/record-browser <output.mp4>` | Start recording the active browser tab |
-| `/stop-recording` | Stop recording and compile to MP4 |
+| `/record-browser [url] [--output path.mp4] [--actions "..."]` | Start recording and optionally automate interactions |
+| `/stop-recording` | Stop recording and save the MP4 |
 
 ## How It Works
 
-1. **Connect** — The recorder connects to Chrome via the DevTools Protocol (CDP) on the configured port
-2. **Capture** — Chrome's `Page.startScreencast` API streams JPEG frames to the recorder
-3. **Store** — Frames are saved to a temporary directory as sequentially numbered JPEGs
-4. **Compile** — When stopped, ffmpeg stitches the frames into an H.264 MP4 with yuv420p pixel format
-5. **Clean up** — Temporary frames are deleted after successful compilation
+1. **Connect** — Verifies Chrome is reachable via the DevTools MCP
+2. **Navigate** — Opens the target URL if provided
+3. **Record** — Starts `screencast_start` to capture video via ffmpeg
+4. **Interact** — Automates clicks, typing, navigation using MCP tools, or waits for manual interaction
+5. **Stop** — Calls `screencast_stop` to finalize the MP4
 
 ## Prerequisites
 
-- **Google Chrome or Chromium** launched with `--remote-debugging-port=9222`
-- **ffmpeg** installed (`brew install ffmpeg`)
-- **Node.js** (v18+)
+- **Chrome/Chromium** running with `--remote-debugging-port=9222`
+- **Chrome DevTools MCP** configured with the `--screencast` flag
+- **ffmpeg** installed and in PATH (`brew install ffmpeg`)
 
-## Options
+## Examples
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--port` | `9222` | Chrome DevTools Protocol port |
-| `--fps` | `10` | Output video frames per second |
-| `--quality` | `80` | JPEG capture quality (1-100) |
-| `--output` | `recording.mp4` | Output file path |
-
-## Example Workflow
-
+**Record a manual browsing session:**
 ```
-1. Launch Chrome: google-chrome --remote-debugging-port=9222
-2. Start recording: /record-browser demo.mp4 --fps 15
-3. Interact with the browser...
-4. Stop recording: /stop-recording
-5. Video saved to demo.mp4
+/record-browser
+# interact with Chrome manually...
+/stop-recording
+```
+
+**Record a specific page:**
+```
+/record-browser https://example.com --output demo.mp4
+```
+
+**Record with automated interactions:**
+```
+/record-browser https://example.com --actions "click the login button, fill in username 'admin', fill in password 'test', submit the form"
 ```
 
 ## Troubleshooting
 
-- **"Cannot connect to Chrome"** — Ensure Chrome is running with `--remote-debugging-port=9222`
-- **"ffmpeg not found"** — Install with `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
-- **Low quality video** — Increase `--quality` (up to 100) and `--fps` (up to 30)
-- **Large file size** — Decrease `--fps` or `--quality`
+- **"list_pages failed"** — Chrome isn't running with `--remote-debugging-port=9222`
+- **"screencast_start failed"** — The MCP server needs `--screencast` flag. Check your MCP config.
+- **"ffmpeg not found"** — Install with `brew install ffmpeg`

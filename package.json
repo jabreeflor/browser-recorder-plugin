@@ -1,12 +1,6 @@
 {
   "name": "browser-recorder-plugin",
-  "version": "1.0.0",
-  "description": "Claude Code plugin to record browser interactions as MP4 video",
-  "private": true,
-  "scripts": {
-    "postinstall": "echo 'browser-recorder-plugin installed successfully'"
-  },
-  "dependencies": {
-    "ws": "^8.16.0"
-  }
+  "version": "2.0.0",
+  "description": "Claude Code plugin to record browser interactions as MP4 video via Chrome DevTools MCP",
+  "private": true
 }

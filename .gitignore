@@ -1,5 +1,2 @@
 node_modules/
-.browser-recorder-frames-*/
-.browser-recorder.pid
-.browser-recorder-meta.json
 *.mp4
