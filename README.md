@@ -17,13 +17,13 @@ claude plugin link /path/to/browser-recorder-plugin
   ```bash
   /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
   ```
-- **Chrome DevTools MCP** configured with the `--screencast` flag:
+- **Chrome DevTools MCP** configured with the `--experimentalScreencast` flag:
   ```json
   {
     "chrome-devtools": {
       "type": "stdio",
       "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--screencast"],
+      "args": ["chrome-devtools-mcp@latest", "--experimentalScreencast"],
       "env": {}
     }
   }

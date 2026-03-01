@@ -31,7 +31,7 @@ The **Browser Recorder** plugin orchestrates Chrome DevTools MCP tools to record
 ## Prerequisites
 
 - **Chrome/Chromium** running with `--remote-debugging-port=9222`
-- **Chrome DevTools MCP** configured with the `--screencast` flag
+- **Chrome DevTools MCP** configured with the `--experimentalScreencast` flag
 - **ffmpeg** installed and in PATH (`brew install ffmpeg`)
 
 ## Examples
@@ -56,5 +56,5 @@ The **Browser Recorder** plugin orchestrates Chrome DevTools MCP tools to record
 ## Troubleshooting
 
 - **"list_pages failed"** — Chrome isn't running with `--remote-debugging-port=9222`
-- **"screencast_start failed"** — The MCP server needs `--screencast` flag. Check your MCP config.
+- **"screencast_start failed"** — The MCP server needs `--experimentalScreencast` flag. Check your MCP config.
 - **"ffmpeg not found"** — Install with `brew install ffmpeg`

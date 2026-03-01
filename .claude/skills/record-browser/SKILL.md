@@ -23,7 +23,7 @@ If no arguments are provided, start recording the current browser state and wait
 1. **Verify Chrome is connected.** Call `mcp__chrome-devtools__list_pages` to confirm the MCP can reach the browser. If this fails, tell the user:
    - Chrome must be running with `--remote-debugging-port=9222`
    - On macOS: `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222`
-   - The Chrome DevTools MCP server must be running with the `--screencast` flag
+   - The Chrome DevTools MCP server must be running with the `--experimentalScreencast` flag
 
 2. **Select the target page.** If multiple pages are open, use `mcp__chrome-devtools__list_pages` and either:
    - Use the page matching the requested URL
